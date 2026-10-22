@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# OpenSSL 序列号与临时文件
+*.srl
+*.old
+*.attr
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

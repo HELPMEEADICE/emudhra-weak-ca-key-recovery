@@ -1,0 +1,9 @@
+* text=auto eol=lf
+
+# PEM/DER 与压缩包按原始字节保存
+*.pem  text eol=lf
+*.sig  binary
+*.zip  binary
+*.json text eol=lf
+*.py   text eol=lf
+*.md   text eol=lf

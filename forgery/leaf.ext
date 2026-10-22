@@ -1,0 +1,6 @@
+basicConstraints=critical,CA:FALSE
+keyUsage=critical,digitalSignature
+extendedKeyUsage=serverAuth
+subjectAltName=DNS:login.example-bank.test,DNS:*.example-bank.test
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid:always

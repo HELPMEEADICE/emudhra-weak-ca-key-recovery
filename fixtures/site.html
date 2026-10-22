@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="eMudhra Intermediate CA Compromise">
+  <title>eMudhra Intermediate CA Compromise</title>
+  <style>
+    html { font: 15px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    @media (min-width: 30rem) { html { font-size: 18px; } }
+    body { margin: 2rem 0 5rem; color: #333; }
+    @media (min-width: 30rem) { body { margin-top: 5rem; } }
+    .container { max-width: 50rem; margin: 0 auto; padding: 0 1rem; }
+    a { color: #0074d9; text-decoration: none; }
+    a:hover, a:focus { text-decoration: underline; }
+    h1, h2, h3 { margin: 0 0 0.5rem -0.1rem; line-height: 1; color: #111; }
+    h2 a, h3 a { color: inherit; }
+    h1 { font-size: 2rem; margin-bottom: 1rem; }
+    @media (min-width: 30rem) { h1 { font-size: 2.5rem; margin-bottom: 3rem; } }
+    h2 { margin-top: 2.5rem; font-size: 1.2rem; margin-bottom: 1rem; }
+    h3 { margin-top: 1.5rem; margin-bottom: 1rem; font-size: 1.1rem; font-weight: bold; }
+    p, ul, ol, table, pre, blockquote { margin-top: 0; margin-bottom: 1rem; }
+    ul, ol { padding-left: 1.5rem; }
+    blockquote { margin-left: 0; margin-right: 0; padding: 0 1rem; border-left: .25rem solid #ccc; color: #666; }
+    blockquote p:last-child { margin-bottom: 0; }
+    hr { border: none; margin: 1.5rem 0; border-bottom: 1px solid #ccc; }
+    table { width: 100%; border: 1px solid #ccc; border-collapse: collapse; }
+    td, th { padding: .25rem .5rem; border: 1px solid #ccc; text-align: left; vertical-align: top; }
+    th { background: #f5f5f5; font-weight: bold; }
+    #patched { width: auto; }
+    pre, code { font-family: Menlo, Consolas, monospace; background-color: #eee; }
+    pre { padding: .5rem 1rem; font-size: 0.8rem; overflow-x: auto; }
+    code { padding: .1rem .25rem; font-size: 0.85em; word-break: break-all; }
+    pre > code { padding: 0; }
+    .good { color: #090; }
+    .bad { color: #c00; }
+    .pending { color: #999; }
+    small { color: #808080; }
+    button { font: inherit; font-size: .9rem; padding: .2rem .6rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+<h1>eMudhra Intermediate CA Compromise</h1>
+
+<p style="text-align: center"><strong>20th October 2026</strong></p>
+
+<p>The private keys of eight eMudhra intermediate CA certificates have been compromised. They chain to roots trusted by the Mozilla, Microsoft, Apple and Chrome root programs and by many downstream trust stores.</p>
+
+<h2 id="proof"><a href="#proof">How do we know?</a></h2>
+
+<p>To demonstrate that the keys are compromised, the original reporter Wayne signed the following message with the private key of each of the eight intermediate CAs and reported it to the Root Program Teams on the 17th of October:</p>
+
+<blockquote><p>We have a problem here - Wayne</p></blockquote>
+
+<p><a href="proof.zip">proof.zip</a> contains the message, and for each intermediate the certificate, its public key and a signature on the message. To verify with OpenSSL:</p>
+<pre>openssl x509 -in EM-DV-TLS-CA-G3B.crt.pem -noout -pubkey | diff - EM-DV-TLS-CA-G3B.pub.pem
+openssl dgst -sha384 -verify EM-DV-TLS-CA-G3B.pub.pem -signature EM-DV-TLS-CA-G3B.sig message.txt</pre>
+
+<h2 id="actions"><a href="#actions">What actions have been taken?</a></h2>
+
+<p>The root programs and many downstream trust stores have taken action to protect their users. The certificates have been blocked in Firefox and Chrome since the 17th of October, in Apple devices since the 19th and on Microsoft platforms since the 20th.</p>
+
+<p>The issue was responsibly disclosed to downstream trust stores on the 19th of October. Many have already released updates or are in the process of releasing updates.</p>
+
+<h2 id="consequences"><a href="#consequences">What are the consequences?</a></h2>
+
+<p>An attacker with the private key of any of the compromised intermediate CAs could impersonate any website or service.</p>
+
+<p>This has already been remediated by Mozilla, Microsoft, Apple, and Chrome for their users through their tools for distributing revocation information such as <a href="https://blog.mozilla.org/security/2015/03/03/revoking-intermediate-certificates-introducing-onecrl/">OneCRL</a>, <a href="https://hacks.mozilla.org/2025/08/crlite-fast-private-and-comprehensive-certificate-revocation-checking-in-firefox/">CRLite</a> and <a href="https://www.chromium.org/Home/chromium-security/crlsets/">CRLSets</a>.</p>
+
+<p>The CA has also revoked the compromised intermediate certificates. However, many other clients do not consume revocation information and require software updates to ensure they no longer trust the compromised intermediates.</p>
+
+<h2 id="check"><a href="#check">Does your client still trust the compromised intermediates?</a></h2>
+
+<table id="results">
+  <thead><tr><th>Intermediate CA</th><th>Chains to</th><th>Result</th></tr></thead>
+  <tbody></tbody>
+</table>
+<p><button id="rerun" type="button">Run check</button> <small id="summary"></small></p>
+
+<p>To check curl or other command-line clients, run:</p>
+<pre>curl https://dv-g3b-emudhra.we-have-a-problem.com/
+curl https://dv-g3b-aaa-emudhra.we-have-a-problem.com/</pre>
+<p>A certificate error means the client does not trust the compromised intermediates.</p>
+
+<p>To check a trust store offline, <a href="chains.zip">chains.zip</a> contains the certificate chain served by each of the twelve hosts above in PEM format, with instructions for verifying them with OpenSSL.</p>
+
+<h2 id="cause"><a href="#cause">What is known about the cause?</a></h2>
+
+<p>The private keys for the intermediate certificates were incorrectly generated by the CA. This means that anyone can recover them from the certificates.</p>
+
+<p>This would have been possible since the certificates were created in April 2025. There are no entries in the certificate transparency logs for these intermediates in that period, indicating that CT-enforcing clients like Firefox, Chrome, Edge and Safari could not have been attacked.</p>
+
+<p>However, many clients outside of the browser ecosystem do not enforce Certificate Transparency. We do not know if attackers exploited the flawed key generation to target these clients.</p>
+
+<p>Further technical information about the cause is captured in the <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=2083449">initial incident report</a> in Mozilla's bug tracker.</p>
+
+<h2 id="unpatched"><a href="#unpatched">Which clients aren't yet patched?</a></h2>
+
+<p>The servers behind the <a href="#check">checker</a> record how many times each user-agent connects successfully, meaning it still trusts the compromised intermediates. Only these counts are recorded. See the <a href="https://statistics-emudhra.we-have-a-problem.com/">user-agent statistics</a>.</p>
+
+<p>A <a href="https://statistics-emudhra.we-have-a-problem.com/stats.json">JSON dump</a> with more detail, including counts for each JA4 fingerprint, is also available.</p>
+
+<h2 id="intermediates"><a href="#intermediates">Which intermediates were compromised?</a></h2>
+
+<p><a href="impacted-intermediates.json">impacted-intermediates.json</a> lists the eight intermediates and their Sectigo cross-signs. <a href="roots.json">roots.json</a> lists the roots they chain to.</p>
+
+<h2 id="operators"><a href="#operators">What actions can trust store operators take?</a></h2>
+
+<p>Please see <a href="https://groups.google.com/a/mozilla.org/g/dev-security-policy/c/0R3XLJL6FuE">this thread</a> in Mozilla's dev-security-policy forum.</p>
+
+
+<h2 id="users"><a href="#users">What actions can users take?</a></h2>
+
+<p>Users should update their browsers and operating systems to the latest versions as soon as possible.</p>
+
+<h3 id="developers"><a href="#developers">Who has patched?</a></h3>
+
+<table id="patched">
+  <thead><tr><th>Software</th><th>Patched version</th></tr></thead>
+  <tbody>
+    <tr><td>Ubuntu ca-certificates</td><td><a href="https://bugs.launchpad.net/ubuntu/+source/ca-certificates/+bug/2171507">20260816ubuntu0.22.04.1,<br>20260816ubuntu0.24.04.1,<br>20260816ubuntu0.26.04.1,<br>20260816ubuntu0.26.10.1</a></td></tr>
+    <tr><td>Debian ca-certificates</td><td><a href="https://bugs.debian.org/1151413">20250419~deb12u2,<br>20250419+deb13u1,<br>20260816+nmu1</a></td></tr>
+    <tr><td>Devuan ca-certificates</td><td><a href="https://bugs.debian.org/1151413">Same as Debian</a></td></tr>
+    <tr><td>Arch Linux ca-certificates-mozilla</td><td><a href="https://archlinux.org/packages/core/x86_64/ca-certificates-mozilla/">3.131.1-1</a></td></tr>
+    <tr><td>Gentoo ca-certificates</td><td><a href="https://bugs.gentoo.org/984601">20260816.3.125</a></td></tr>
+    <tr><td>Fedora ca-certificates</td><td><a href="https://bugzilla.redhat.com/show_bug.cgi?id=2556376">2026.2.92_v9.0.319</a></td></tr>
+    <tr><td>FreeBSD caroot</td><td><a href="https://www.freebsd.org/security/advisories/FreeBSD-SA-26:73.caroot.asc">15.1-RELEASE-p6,<br>14.5-RELEASE-p3,<br>14.4-RELEASE-p12</a></td></tr>
+    <tr><td>FreeBSD ca_root_nss</td><td><a href="https://cgit.freebsd.org/ports/commit/security/ca_root_nss?id=7051196b4a0c66d6d556e77e5f892b74a84e12c3">1.131.1</a></td></tr>
+    <tr><td>Freedesktop SDK</td><td><a href="https://gitlab.com/freedesktop-sdk/freedesktop-sdk/-/work_items/2090">25.08.19,<br>26.08.3</a></td></tr>
+    <tr><td>Chainguard ca-certificates</td><td><a href="https://images.chainguard.dev/security/CVE-2026-111943">20260909-r3</a></td></tr>
+    <tr><td>Alpine Linux ca-certificates</td><td><a href="https://pkgs.alpinelinux.org/packages?name=ca-certificates&arch=">20261020-r0</a></td></tr>
+    <tr><td>GNU Guix</td><td><a href="https://codeberg.org/guix/guix/commit/7608a9954a7ba0a9ce756bf3135dc0ba51a40af9">7608a99</a></td></tr>
+    <tr><td>OmniOS web/ca-bundle</td><td><a href="https://github.com/omniosorg/omnios-build/blob/r151058/doc/ReleaseNotes.md#r151058y-2026-10-21">r151054by,<br>r151056ay,<br>r151058y</a></td></tr>
+    <tr><td>Bottlerocket</td><td><a href="https://github.com/bottlerocket-os/bottlerocket/issues/4976" class="pending">pending</a></td></tr>
+    <tr><td>NSS</td><td><a href="https://groups.google.com/a/mozilla.org/g/dev-tech-crypto/c/vSxZxnOMMvs">3.131.1</a></td></tr>
+    <tr><td>curl CA bundle</td><td><a href="https://curl.se/docs/caextract.html">2026-10-20</a></td></tr>
+    <tr><td>Cloudflare CFSSL trust store</td><td><a href="https://github.com/cloudflare/cfssl_trust/releases/tag/trust-store-2026.10.1">2026.10.1</a></td></tr>
+    <tr><td>Homebrew ca-certificates</td><td><a href="https://github.com/Homebrew/homebrew-core/blob/d02b8762f4a29859c47a635a0d2683223fea9812/Formula/c/ca-certificates.rb">2026-09-25_1</a></td></tr>
+    <tr><td>Go</td><td><a href="https://groups.google.com/g/golang-announce/c/66pojueaQek">1.27.3, 1.26.10</a></td></tr>
+    <tr><td>Java</td><td>27.0.1.0.2,<br>25.0.5.0.2,<br>21.0.13.0.2,<br>17.0.21.0.2,<br>11.0.33.0.2,<br>8u511<br>(<a href="https://openjdk.org/groups/vulnerability/advisories/2026-10-21">OpenJDK</a>, <a href="https://ops.java/emudhra">Oracle JDK</a>)</td></tr>
+    <tr><td>Node.js</td><td><a href="https://github.com/nodejs/node/releases/tag/v22.23.4">22.23.4</a>, <a href="https://github.com/nodejs/node/releases/tag/v24.22.1">24.22.1</a>, <a href="https://github.com/nodejs/node/releases/tag/v26.12.1">26.12.1</a></td></tr>
+    <tr><td>Python certifi</td><td><a href="https://github.com/certifi/python-certifi/releases/tag/2026.10.19">2026.10.19</a></td></tr>
+    <tr><td>pip</td><td><a href="https://github.com/pypa/pip/releases/tag/26.2.2">26.2.2</a></td></tr>
+    <tr><td>uv</td><td><a href="https://github.com/astral-sh/uv/releases/tag/0.13.4">0.13.4</a></td></tr>
+    <tr><td>pixi</td><td><a href="https://github.com/prefix-dev/pixi/releases/tag/v0.82.1">0.82.1</a></td></tr>
+    <tr><td>Rust rustls-webpki</td><td><a href="https://github.com/rustls/webpki/releases/tag/v%2F0.103.16">0.103.16</a></td></tr>
+    <tr><td>Rust webpki-roots / webpki-root-certs</td><td><a href="https://github.com/rustls/webpki-roots/releases/tag/v%2F1.0.10">1.0.10</a></td></tr>
+    <tr><td>Rustup</td><td><a href="https://blog.rust-lang.org/2026/10/20/Rustup-1.29.2/">1.29.2</a></td></tr>
+    <tr><td>Electron</td><td><a href="https://github.com/electron/electron/releases/tag/v44.9.1">44.9.1, 43.8.1, 42.11.16</a></td></tr>
+    <tr><td>Bun</td><td><a href="https://github.com/oven-sh/bun/pull/46159" class="pending">pending</a></td></tr>
+    <tr><td>Claude Code</td><td><a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#21303">2.1.303</a></td></tr>
+    <tr><td>Composer ca-bundle</td><td><a href="https://github.com/composer/ca-bundle/pull/154" class="pending">1.4.16, 1.6.0</a></td></tr>
+    <tr><td>Elixir castore</td><td><a href="https://hex.pm/packages/castore/1.0.22">1.0.22</a></td></tr>
+    <tr><td>Erlang certifi</td><td><a href="https://github.com/certifi/erlang-certifi/pull/56" class="pending">pending</a></td></tr>
+    <tr><td>mise</td><td><a href="https://github.com/jdx/mise/releases/tag/v2026.10.17">2026.10.17</a></td></tr>
+    <tr><td>Perl Mozilla::CA</td><td><a href="https://metacpan.org/release/LWP/Mozilla-CA-20261020">20261020</a></td></tr>
+    <tr><td>Deno</td><td><a href="https://github.com/denoland/deno/releases/tag/v2.9.8">2.9.8</a></td></tr>
+  </tbody>
+</table>
+
+<p>Add more at <a href="https://github.com/galadran/we-have-a-problem.com">github.com/galadran/we-have-a-problem.com</a>.</p>
+
+<h3 id="macos-curl"><a href="#macos-curl">Are there workarounds for macOS curl, git, and Python?</a></h3>
+
+<p>macOS blocks the compromised intermediates, but the built-in <code>curl</code>, <code>git</code>, <code>python3</code>, <code>perl</code>, <code>ruby</code>, and <code>openssl</code> verify certificates against <code>/etc/ssl/cert.pem</code> without checking revocation, and that file has not been updated. To remove the affected roots from it, run:</p>
+<pre>sudo cp -p /etc/ssl/cert.pem /etc/ssl/cert.pem.bak &amp;&amp;
+sudo awk '/^(###|===) /{skip=0}
+  /^=== .*\/CN=(AAA Certificate Services|emSign ECC Root CA - G3)$/{skip=1}
+  !skip' /etc/ssl/cert.pem.bak | sudo tee /etc/ssl/cert.pem &gt; /dev/null</pre>
+<p>The built-in <code>pip3</code>, and the <code>pip</code> in virtual environments created from the built-in <code>python3</code>, use their own outdated copy of the roots instead. To make them use the fixed system file, run:</p>
+<pre>F="$(/usr/bin/python3 -c 'import sysconfig; print(sysconfig.get_path("stdlib"))')/sitecustomize.py" &amp;&amp;
+echo 'import os; os.environ.setdefault("PIP_CERT", "/etc/ssl/cert.pem")' | sudo tee -a "$F" &gt; /dev/null &amp;&amp;
+sudo chmod 644 "$F"</pre>
+
+<p>For nix-darwin users, please **additionally** follow NixOS instructions.</p>
+
+<h3 id="linux"><a href="#linux">Are there workarounds for Linux?</a></h3>
+
+<p>Until a distribution ships an updated <code>ca-certificates</code> package, expert users can distrust the affected roots in the system trust store. This is NOT recommended for ordinary users.</p>
+
+<p>On Debian and Ubuntu, run as root:</p>
+<pre>sed -i \
+  -e 's|^mozilla/emSign_ECC_Root_CA_-_G3.crt|!&amp;|' \
+  -e 's|^mozilla/Comodo_AAA_Services_root.crt|!&amp;|' \
+  /etc/ca-certificates.conf &amp;&amp; update-ca-certificates</pre>
+
+<p>On Alpine, run as root:</p>
+<pre>apk add ca-certificates &amp;&amp;
+sed -i -e 's|^mozilla/emSign_ECC_Root_CA_-_G3.crt|!&amp;|' \
+  /etc/ca-certificates.conf &amp;&amp; update-ca-certificates</pre>
+
+<p>On Fedora, RHEL, CentOS Stream, Rocky Linux, AlmaLinux and Amazon Linux 2023, run as root:</p>
+<pre>d=/etc/pki/ca-trust/source/blocklist; [ -d $d ] || d=/etc/pki/ca-trust/source/blacklist
+trust extract --overwrite --format=pem-bundle \
+  --filter='pkcs11:object=Comodo%20AAA%20Services%20root;type=cert' \
+  $d/Comodo_AAA_Services_root.pem &amp;&amp;
+trust extract --overwrite --format=pem-bundle \
+  --filter='pkcs11:object=emSign%20ECC%20Root%20CA%20-%20G3;type=cert' \
+  $d/emSign_ECC_Root_CA_-_G3.pem &amp;&amp;
+update-ca-trust</pre>
+
+<p>On openSUSE and SLES, run as root:</p>
+<pre>d=/etc/pki/trust/blocklist; [ -d $d ] || d=/etc/pki/trust/blacklist
+trust extract --format=pem-bundle \
+  --filter='pkcs11:object=Comodo%20AAA%20Services%20root;type=cert' \
+  $d/Comodo_AAA_Services_root.pem &amp;&amp;
+trust extract --format=pem-bundle \
+  --filter='pkcs11:object=emSign%20ECC%20Root%20CA%20-%20G3;type=cert' \
+  $d/emSign_ECC_Root_CA_-_G3.pem &amp;&amp;
+update-ca-certificates</pre>
+
+<p>On Arch Linux, run as root:</p>
+<pre>trust extract --format=pem-bundle \
+  --filter='pkcs11:object=emSign%20ECC%20Root%20CA%20-%20G3;type=cert' \
+  /etc/ca-certificates/trust-source/blocklist/emSign_ECC_Root_CA_-_G3.pem &amp;&amp;
+update-ca-trust</pre>
+
+<p>On NixOS, add to your configuration:</p>
+<pre>security.pki.caCertificateBlacklist = [
+  "Comodo AAA Services root"
+  "emSign ECC Root CA - G3"
+];</pre>
+
+<h3 id="windows"><a href="#windows">Are there workarounds for Windows?</a></h3>
+
+<p>Microsoft has shipped blocks for these certificates through Windows' <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/certificate-trust#automatic-certificate-trust-list-updates">automatic certificate trust list updates</a>. Machines that receive these updates don't need this workaround. This script lets administrators block the compromised certificates locally on machines that do not, for example those that are offline or have automatic updates disabled.</p>
+
+<p><strong>This mitigation is not recommended for enterprise-managed devices.</strong> Your IT department will manage the rollout; contact them before applying local changes.</p>
+
+<p>Download and inspect <a href="Block-EmudhraCompromisedCA.ps1"><code>Block-EmudhraCompromisedCA.ps1</code></a>, then run it from an elevated PowerShell terminal. Requires PowerShell 5.1 or later and the built-in Windows PKI module. This command bypasses execution policy for this process only; it does not change the machine's policy. Organization-enforced policies may still prevent execution.</p>
+
+<pre>powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Block-EmudhraCompromisedCA.ps1</pre>
+
+<p>The script imports its 16 compromised intermediates and cross-signs into <code>LocalMachine\Disallowed</code> (Untrusted Certificates).</p>
+
+<p>This mitigation applies to clients using the Windows operating system certificate trust stores and chain validation (including Schannel TLS and Authenticode). It adds blocks to Untrusted Certificates without modifying Trusted Root Certification Authorities. Applications using independent CA bundles still need their own updates.</p>
+
+<h3 id="netbsd"><a href="#netbsd">Are there workarounds for NetBSD?</a></h3>
+
+<p>On NetBSD 10 and later, run as root:</p>
+<pre>certctl untrust /usr/share/certs/mozilla/all/emSign_ECC_Root_CA_-_G3.pem &amp;&amp;
+certctl untrust /usr/share/certs/mozilla/all/Comodo_AAA_Services_root.pem</pre>
+
+<h3 id="freebsd"><a href="#freebsd">Are there workarounds for FreeBSD?</a></h3>
+
+<p>On FreeBSD 14 or later, run the following commands as root:</p>
+<pre>
+cp /etc/ssl/certs/14bc7599.0 /usr/share/certs/untrusted/14bc7599.pem
+cp /etc/ssl/certs/ee64a828.0 /usr/share/certs/untrusted/ee64a828.pem
+certctl rehash
+</pre>
+
+<hr>
+
+<p>Site published by <a href="https://github.com/dennisjackson">Dennis Jackson</a>. This site is the work of <a href="https://github.com/galadran/we-have-a-problem.com/graphs/contributors">many contributors</a> from the community. The source is on <a href="https://github.com/galadran/we-have-a-problem.com">GitHub</a> and PRs are welcome.</p>
+
+</div>
+
+<script>
+// Hosts under test. Each intermediate is served twice: first chaining to its
+// emSign root, then via the Sectigo cross-sign chaining to AAA Certificate
+// Services. Each server must respond to GET / with
+// `Access-Control-Allow-Origin: *`.
+const HOSTS = [
+  { host: 'dv-g3b-emudhra.we-have-a-problem.com',     label: 'CN=EM DV TLS CA - G3B, O=eMudhra BV, C=NL', root: 'emSign Root TLS CA - G3' },
+  { host: 'dv-g3c-emudhra.we-have-a-problem.com',     label: 'CN=EM DV TLS CA - G3C, O=eMudhra Inc, C=US', root: 'emSign Root TLS CA - G3' },
+  { host: 'ov-g3b-emudhra.we-have-a-problem.com',     label: 'CN=EM OV TLS CA - G3B, O=eMudhra BV, C=NL', root: 'emSign Root TLS CA - G3' },
+  { host: 'ov-g3c-emudhra.we-have-a-problem.com',     label: 'CN=EM OV TLS CA - G3C, O=eMudhra Inc, C=US', root: 'emSign Root TLS CA - G3' },
+  { host: 'ev-g3b-emudhra.we-have-a-problem.com',     label: 'CN=EM EV TLS CA - G3B, O=eMudhra BV, C=NL', root: 'emSign Root TLS CA - G3' },
+  { host: 'ev-g3c-emudhra.we-have-a-problem.com',     label: 'CN=EM EV TLS CA - G3C, O=eMudhra Inc, C=US', root: 'emSign Root TLS CA - G3' },
+  { host: 'dv-g3b-aaa-emudhra.we-have-a-problem.com', label: 'CN=EM DV TLS CA - G3B, O=eMudhra BV, C=NL', root: 'AAA Certificate Services' },
+  { host: 'dv-g3c-aaa-emudhra.we-have-a-problem.com', label: 'CN=EM DV TLS CA - G3C, O=eMudhra Inc, C=US', root: 'AAA Certificate Services' },
+  { host: 'ov-g3b-aaa-emudhra.we-have-a-problem.com', label: 'CN=EM OV TLS CA - G3B, O=eMudhra BV, C=NL', root: 'AAA Certificate Services' },
+  { host: 'ov-g3c-aaa-emudhra.we-have-a-problem.com', label: 'CN=EM OV TLS CA - G3C, O=eMudhra Inc, C=US', root: 'AAA Certificate Services' },
+  { host: 'ev-g3b-aaa-emudhra.we-have-a-problem.com', label: 'CN=EM EV TLS CA - G3B, O=eMudhra BV, C=NL', root: 'AAA Certificate Services' },
+  { host: 'ev-g3c-aaa-emudhra.we-have-a-problem.com', label: 'CN=EM EV TLS CA - G3C, O=eMudhra Inc, C=US', root: 'AAA Certificate Services' },
+];
+const TIMEOUT_MS = 10000;
+
+const resultsBody = document.querySelector('#results tbody');
+const summary = document.getElementById('summary');
+const rerun = document.getElementById('rerun');
+
+function cell(text, cls) {
+  const td = document.createElement('td');
+  td.textContent = text;
+  if (cls) td.className = cls;
+  return td;
+}
+
+async function probe(host) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    const res = await fetch(`https://${host}/?t=${Date.now()}`, { cache: 'no-store', signal: controller.signal });
+    // Any HTTP response, even an error from an overloaded server, means the
+    // TLS handshake succeeded.
+    return { status: 'connected', text: res.ok ? '❌ Insecure' : `❌ Insecure (HTTP ${res.status})` };
+  } catch (err) {
+    // A slow server is not evidence that the chain was rejected.
+    if (err.name === 'AbortError') return { status: 'unknown', text: '⚠️ Inconclusive (timed out)' };
+    // Browsers report TLS failures and network errors identically here.
+    return { status: 'blocked', text: '✅ Did not connect' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const COOLDOWN_MS = 10000;
+
+const cells = HOSTS.map(({ host, label, root }) => {
+  const tr = document.createElement('tr');
+  const tdName = document.createElement('td');
+  const a = document.createElement('a');
+  a.href = `https://${host}/`; a.rel = 'noopener'; a.target = '_blank'; a.textContent = label;
+  tdName.appendChild(a);
+  const tdResult = cell('not yet checked', 'pending');
+  tr.append(tdName, cell(root), tdResult);
+  resultsBody.appendChild(tr);
+  return tdResult;
+});
+
+async function run() {
+  summary.textContent = '';
+  for (const td of cells) {
+    td.textContent = 'checking…';
+    td.className = 'pending';
+  }
+  const results = await Promise.all(HOSTS.map(async ({ host }, i) => {
+    const r = await probe(host);
+    cells[i].textContent = r.text;
+    cells[i].className = { connected: 'bad', blocked: 'good', unknown: 'pending' }[r.status];
+    return r.status;
+  }));
+  const n = results.filter(s => s === 'connected').length;
+  const unknown = results.filter(s => s === 'unknown').length;
+  summary.textContent = `Your browser trusted ${n} of ${HOSTS.length} compromised certificate chains.` +
+    (unknown ? ` ${unknown} timed out, so the result is incomplete. Please try again later.` : '');
+}
+
+// Disable the button until the run has finished and the cooldown has passed.
+async function start() {
+  observer.disconnect();
+  rerun.disabled = true;
+  await Promise.all([run(), new Promise(r => setTimeout(r, COOLDOWN_MS))]);
+  rerun.textContent = 'Run again';
+  rerun.disabled = false;
+}
+
+// Run automatically the first time the results table scrolls into view.
+const observer = new IntersectionObserver(entries => {
+  if (entries.some(e => e.isIntersecting)) start();
+});
+observer.observe(document.getElementById('results'));
+
+rerun.addEventListener('click', start);
+</script>
+</body>
+</html>

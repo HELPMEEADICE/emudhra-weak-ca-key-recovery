@@ -1,0 +1,146 @@
+{
+  "EBED6475C2C2D80FCB199F3FE8DD6E6B3CE60B77EB15D4E42C3DEC0C6F5B5105": {
+    "name": "EM DV TLS CA - G3B",
+    "subject": "CN=EM DV TLS CA - G3B,O=eMudhra BV,C=NL",
+    "d": 156,
+    "d_hex": "0x9c",
+    "curve": "secp384r1",
+    "spki_sha256": "EBED6475C2C2D80FCB199F3FE8DD6E6B3CE60B77EB15D4E42C3DEC0C6F5B5105",
+    "pubkey_match": true,
+    "issued_by": [
+      "emSign Root TLS CA - G3 (eMudhra)",
+      "AAA Certificate Services (Sectigo)"
+    ],
+    "serials": [
+      "A4AEE678F23362B4C0E460B772F214 / eMudhra",
+      "A024FDF4BA665C785CE4A020483858B7 / Sectigo"
+    ],
+    "key_file": "recovered\\EM-DV-TLS-CA-G3B-emSignRootTLSCA-G3(eMudhra).key.pem"
+  },
+  "43BFFA19D6EF651451F6841E019931E96F6F2EAEFF28AB4B6F1CE4576DE2717B": {
+    "name": "EM OV TLS CA - G3B",
+    "subject": "CN=EM OV TLS CA - G3B,O=eMudhra BV,C=NL",
+    "d": 155,
+    "d_hex": "0x9b",
+    "curve": "secp384r1",
+    "spki_sha256": "43BFFA19D6EF651451F6841E019931E96F6F2EAEFF28AB4B6F1CE4576DE2717B",
+    "pubkey_match": true,
+    "issued_by": [
+      "emSign Root TLS CA - G3 (eMudhra)",
+      "AAA Certificate Services (Sectigo)"
+    ],
+    "serials": [
+      "6CADA367FB1C100088120EA202D568 / eMudhra",
+      "E94223BDE92F914E5AB9ACABFDAC3710 / Sectigo"
+    ],
+    "key_file": "recovered\\EM-OV-TLS-CA-G3B-emSignRootTLSCA-G3(eMudhra).key.pem"
+  },
+  "E0254C7FCDC265E2F0F8A428DABB75AB4AE039B4872D62F5EE57F0877D5A8A41": {
+    "name": "EM EV TLS CA - G3B",
+    "subject": "CN=EM EV TLS CA - G3B,O=eMudhra BV,C=NL",
+    "d": 115,
+    "d_hex": "0x73",
+    "curve": "secp384r1",
+    "spki_sha256": "E0254C7FCDC265E2F0F8A428DABB75AB4AE039B4872D62F5EE57F0877D5A8A41",
+    "pubkey_match": true,
+    "issued_by": [
+      "emSign Root TLS CA - G3 (eMudhra)",
+      "AAA Certificate Services (Sectigo)"
+    ],
+    "serials": [
+      "C7C41EFE92D825F05EAE841A4A82C1 / eMudhra",
+      "D8F8685E4F2BD9D82402A85A1C1EB731 / Sectigo"
+    ],
+    "key_file": "recovered\\EM-EV-TLS-CA-G3B-emSignRootTLSCA-G3(eMudhra).key.pem"
+  },
+  "49DD353DC2B919A3770645117D0E60C16115E7D1BC259EEFE734B00EA434FE5F": {
+    "name": "EM DV TLS CA - G3C",
+    "subject": "CN=EM DV TLS CA - G3C,O=eMudhra Inc,C=US",
+    "d": 230,
+    "d_hex": "0xe6",
+    "curve": "secp384r1",
+    "spki_sha256": "49DD353DC2B919A3770645117D0E60C16115E7D1BC259EEFE734B00EA434FE5F",
+    "pubkey_match": true,
+    "issued_by": [
+      "emSign Root TLS CA - G3 (eMudhra)",
+      "AAA Certificate Services (Sectigo)"
+    ],
+    "serials": [
+      "588B2E3C2BB8CDA13E1A1209254321 / eMudhra",
+      "91F347F1A5B7D39962B95E0EE4E299D1 / Sectigo"
+    ],
+    "key_file": "recovered\\EM-DV-TLS-CA-G3C-emSignRootTLSCA-G3(eMudhra).key.pem"
+  },
+  "63ECEFEE431D49523BC1136C4E72D0206A477086CAF606CD5CF025686C109CF8": {
+    "name": "EM OV TLS CA - G3C",
+    "subject": "CN=EM OV TLS CA - G3C,O=eMudhra Inc,C=US",
+    "d": 4,
+    "d_hex": "0x4",
+    "curve": "secp384r1",
+    "spki_sha256": "63ECEFEE431D49523BC1136C4E72D0206A477086CAF606CD5CF025686C109CF8",
+    "pubkey_match": true,
+    "issued_by": [
+      "emSign Root TLS CA - G3 (eMudhra)",
+      "AAA Certificate Services (Sectigo)"
+    ],
+    "serials": [
+      "296926C227A3A1526392B19482A504 / eMudhra",
+      "8D5A4811939EF447D77111CDD9849AE9 / Sectigo"
+    ],
+    "key_file": "recovered\\EM-OV-TLS-CA-G3C-emSignRootTLSCA-G3(eMudhra).key.pem"
+  },
+  "5C0660A2B164910D8FF589C18E14552E9E0EC237DCEFE2CB736D41A4811F81A0": {
+    "name": "EM EV TLS CA - G3C",
+    "subject": "CN=EM EV TLS CA - G3C,O=eMudhra Inc,C=US",
+    "d": 56,
+    "d_hex": "0x38",
+    "curve": "secp384r1",
+    "spki_sha256": "5C0660A2B164910D8FF589C18E14552E9E0EC237DCEFE2CB736D41A4811F81A0",
+    "pubkey_match": true,
+    "issued_by": [
+      "emSign Root TLS CA - G3 (eMudhra)",
+      "AAA Certificate Services (Sectigo)"
+    ],
+    "serials": [
+      "8009928A64107601AF05FA2F19F109 / eMudhra",
+      "05F078752DECE7A1BB8595D303167171 / Sectigo"
+    ],
+    "key_file": "recovered\\EM-EV-TLS-CA-G3C-emSignRootTLSCA-G3(eMudhra).key.pem"
+  },
+  "EC4FFA1AD0AC88081314B7AAFFEF6A91F97CD57291BB5BA686C5415F5EB4F6B6": {
+    "name": "EM OV CS CA - G3B",
+    "subject": "CN=EM OV CS CA - G3B,O=eMudhra BV,C=NL",
+    "d": 66,
+    "d_hex": "0x42",
+    "curve": "secp384r1",
+    "spki_sha256": "EC4FFA1AD0AC88081314B7AAFFEF6A91F97CD57291BB5BA686C5415F5EB4F6B6",
+    "pubkey_match": true,
+    "issued_by": [
+      "emSign Root CS CA - G3 (eMudhra)",
+      "AAA Certificate Services (Sectigo)"
+    ],
+    "serials": [
+      "7818933F8F85B4619A2B35FBA83D0A / eMudhra",
+      "41E32B73AC185D6CE0D7480BACF84E69 / Sectigo"
+    ],
+    "key_file": "recovered\\EM-OV-CS-CA-G3B-emSignRootCSCA-G3(eMudhra).key.pem"
+  },
+  "92C063D67E8F14DB71D288E11266FFDAF69CBF115F7BAB14F3BC2F68D25E0E30": {
+    "name": "EM OV CS CA - G3C",
+    "subject": "CN=EM OV CS CA - G3C,O=eMudhra Inc,C=US",
+    "d": 237,
+    "d_hex": "0xed",
+    "curve": "secp384r1",
+    "spki_sha256": "92C063D67E8F14DB71D288E11266FFDAF69CBF115F7BAB14F3BC2F68D25E0E30",
+    "pubkey_match": true,
+    "issued_by": [
+      "emSign Root CS CA - G3 (eMudhra)",
+      "AAA Certificate Services (Sectigo)"
+    ],
+    "serials": [
+      "544B7F922C31AE220A4A922916F6E6 / eMudhra",
+      "D6A5EF613B390F32EF9CDF349F772841 / Sectigo"
+    ],
+    "key_file": "recovered\\EM-OV-CS-CA-G3C-emSignRootCSCA-G3(eMudhra).key.pem"
+  }
+}
